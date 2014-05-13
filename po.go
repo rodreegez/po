@@ -11,8 +11,17 @@ import (
 func main() {
 	flag.Parse()
 
-	cwd := currentWorkingDirectory()
-	targetSymlink := powLinkPath(filepath.Base(cwd))
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println("error getting current working directory")
+	}
+
+	user, err := user.Current()
+	if err != nil {
+		fmt.Println("Error getting user")
+	}
+
+	targetSymlink := user.HomeDir + "/.pow/" + filepath.Base(cwd)
 
 	if flag.Arg(0) == "link" {
 		err := os.Symlink(cwd, targetSymlink)
@@ -24,24 +33,4 @@ func main() {
 	} else {
 		fmt.Println("Y U NO LINK?")
 	}
-}
-
-func currentWorkingDirectory() string {
-	cwd, err := os.Getwd()
-	if err != nil {
-		fmt.Println("error getting current working directory")
-	}
-	return cwd
-}
-
-func powLinkPath(basePath string) string {
-	return powpath() + basePath
-}
-
-func powpath() string {
-	user, err := user.Current()
-	if err != nil {
-		fmt.Println("Error getting user")
-	}
-	return user.HomeDir + "/.pow/"
 }
